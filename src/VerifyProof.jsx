@@ -11,7 +11,7 @@ export default function VerifyProof(props) {
     const newProof = Reclaim.transformForOnchain(props.proof);
     setProof(newProof);
   }, []);
-
+ 
   return (
     <div>
       <button
@@ -44,5 +44,4 @@ export default function VerifyProof(props) {
       `}</style>
     </div>
   );
-  
 }

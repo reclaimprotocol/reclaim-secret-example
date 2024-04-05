@@ -1,62 +1,73 @@
-import './App.css'
-import { Reclaim } from '@reclaimprotocol/js-sdk'
-import { useState } from 'react'
-import VerifyProof from './VerifyProof'
-import ConnectButton from './ConnectButton'
+import "./App.css";
+import { Reclaim } from "@reclaimprotocol/js-sdk";
+import { useState } from "react";
+import QRCode from "react-qr-code";
+import VerifyProof from "./VerifyProof";
+import ConnectButton from "./ConnectButton";
 
 function App() {
-  const [url, setUrl] = useState('')
+  const [url, setUrl] = useState("");
   const [ready, setReady] = useState(false);
   const [proof, setProof] = useState({});
- 
-  const reclaimClient = new Reclaim.ProofRequest('') //TODO: replace with your applicationId
- 
+
+  const reclaimClient = new Reclaim.ProofRequest(""); //TODO: replace with your applicationId
+
   async function generateVerificationRequest() {
-    const providerId = '' //TODO: replace with your provider ids you had selected while creating the application
-    const APP_SECRET = "" //TODO : replace with your APP_SECRET
- 
-    await reclaimClient.addContext(
-      (`user's address`),
-      ('for acmecorp.com on 1st january')
-    )
- 
-    await reclaimClient.buildProofRequest(providerId)
- 
+    const providerId = ""; //TODO: replace with your provider ids you had selected while creating the application
+
+    reclaimClient.addContext(
+      `user's address`,
+      "for acmecorp.com on 1st january"
+    );
+
+    await reclaimClient.buildProofRequest(providerId);
+
     reclaimClient.setSignature(
       await reclaimClient.generateSignature(
-        APP_SECRET 
+        "" //TODO : replace with your APP_SECRET
       )
-    )
- 
+    );
+
     const { requestUrl, statusUrl } =
-      await reclaimClient.createVerificationRequest()
- 
-    setUrl(requestUrl)
-    console.log(requestUrl)
+      await reclaimClient.createVerificationRequest();
+
+    setUrl(requestUrl);
+
     await reclaimClient.startSession({
-      onSuccessCallback: proof => {
-        console.log('Verification success', proof)
+      onSuccessCallback: (proofs) => {
+        console.log("Verification success", proofs);
         setReady(true);
-        setProof(proof[0]);
+        setProof(proofs[0]);
         // Your business logic here
       },
-      onFailureCallback: error => {
-        console.error('Verification failed', error)
+      onFailureCallback: (error) => {
+        console.error("Verification failed", error);
         // Your business logic here to handle the error
-      }
-    })
+      },
+    });
   }
- 
+
   return (
-    <div className='App'>
-      <ConnectButton/>
-      <button onClick={() => generateVerificationRequest()}>
-        Generate Verification Request
-      </button>
-      <button onClick={() => window.open(url, '_blank')}>Open link</button>
+    <div className="App">
+      <ConnectButton />
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "50vh",
+        }}
+      >
+        {!url && (
+          <button onClick={generateVerificationRequest}>
+            Create Claim QrCode
+          </button>
+        )}
+        {url && <QRCode value={url} />}
+      </div>
       {ready && <VerifyProof proof={proof}></VerifyProof>}
     </div>
-  )
+  );
 }
- 
-export default App
+
+export default App;
